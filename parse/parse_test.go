@@ -1,0 +1,405 @@
+package parse
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/kr/pretty"
+)
+
+var tests = []struct {
+	Text string
+	Node Node
+}{
+
+	//
+	// text only
+	//
+	{
+		Text: "text",
+		Node: &TextNode{Value: "text"},
+	},
+
+	//
+	// variable only
+	//
+	{
+		Text: "${string}",
+		Node: &FuncNode{Param: "string"},
+	},
+
+	//
+	// text transform functions
+	//
+	{
+		Text: "${string,}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ",",
+			Args:  nil,
+		},
+	},
+	{
+		Text: "${string,,}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ",,",
+			Args:  nil,
+		},
+	},
+	{
+		Text: "${string^}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "^",
+			Args:  nil,
+		},
+	},
+	{
+		Text: "${string^^}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "^^",
+			Args:  nil,
+		},
+	},
+
+	//
+	// substring functions
+	//
+	{
+		Text: "${string:position}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":",
+			Args: []Node{
+				&TextNode{Value: "position"},
+			},
+		},
+	},
+	{
+		Text: "${string:position:length}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":",
+			Args: []Node{
+				&TextNode{Value: "position"},
+				&TextNode{Value: "length"},
+			},
+		},
+	},
+
+	//
+	// string removal functions
+	//
+	{
+		Text: "${string#substring}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "#",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+			},
+		},
+	},
+	{
+		Text: "${string##substring}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "##",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+			},
+		},
+	},
+	{
+		Text: "${string%substring}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "%",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+			},
+		},
+	},
+	{
+		Text: "${string%%substring}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "%%",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+			},
+		},
+	},
+
+	//
+	// string replace functions
+	//
+	{
+		Text: "${string/substring/replacement}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+				&TextNode{Value: "replacement"},
+			},
+		},
+	},
+	{
+		Text: "${string//substring/replacement}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "//",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+				&TextNode{Value: "replacement"},
+			},
+		},
+	},
+	{
+		Text: "${string/#substring/replacement}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/#",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+				&TextNode{Value: "replacement"},
+			},
+		},
+	},
+	{
+		Text: "${string/%substring/replacement}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/%",
+			Args: []Node{
+				&TextNode{Value: "substring"},
+				&TextNode{Value: "replacement"},
+			},
+		},
+	},
+
+	//
+	// default value functions
+	//
+	{
+		Text: "${string=default}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "=",
+			Args: []Node{
+				&TextNode{Value: "default"},
+			},
+		},
+	},
+	{
+		Text: "${string:=default}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":=",
+			Args: []Node{
+				&TextNode{Value: "default"},
+			},
+		},
+	},
+	{
+		Text: "${string:-default}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":-",
+			Args: []Node{
+				&TextNode{Value: "default"},
+			},
+		},
+	},
+	{
+		Text: "${string:?default}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":?",
+			Args: []Node{
+				&TextNode{Value: "default"},
+			},
+		},
+	},
+	{
+		Text: "${string:+default}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":+",
+			Args: []Node{
+				&TextNode{Value: "default"},
+			},
+		},
+	},
+
+	//
+	// length function
+	//
+	{
+		Text: "${#string}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "#",
+		},
+	},
+
+	//
+	// special characters in argument
+	//
+	{
+		Text: "${string#$%:*{}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "#",
+			Args: []Node{
+				&TextNode{Value: "$%:*{"},
+			},
+		},
+	},
+
+	// text before and after function
+	{
+		Text: "hello ${#string} world",
+		Node: &ListNode{
+			Nodes: []Node{
+				&TextNode{
+					Value: "hello ",
+				},
+				&ListNode{
+					Nodes: []Node{
+						&FuncNode{
+							Param: "string",
+							Name:  "#",
+						},
+						&TextNode{
+							Value: " world",
+						},
+					},
+				},
+			},
+		},
+	},
+
+	// escaped function arguments
+	{
+		Text: `${string/\/position/length}`,
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/",
+			Args: []Node{
+				&TextNode{
+					Value: "/position",
+				},
+				&TextNode{
+					Value: "length",
+				},
+			},
+		},
+	},
+	{
+		Text: `${string/\/position\\/length}`,
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/",
+			Args: []Node{
+				&TextNode{
+					Value: "/position\\",
+				},
+				&TextNode{
+					Value: "length",
+				},
+			},
+		},
+	},
+
+	// functions in functions
+	{
+		Text: "${string:${position}}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":",
+			Args: []Node{
+				&FuncNode{
+					Param: "position",
+				},
+			},
+		},
+	},
+	{
+		Text: "${string:${stringy:position:length}:${stringz,,}}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  ":",
+			Args: []Node{
+				&FuncNode{
+					Param: "stringy",
+					Name:  ":",
+					Args: []Node{
+						&TextNode{Value: "position"},
+						&TextNode{Value: "length"},
+					},
+				},
+				&FuncNode{
+					Param: "stringz",
+					Name:  ",,",
+				},
+			},
+		},
+	},
+	{
+		Text: "${string#${stringz}}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "#",
+			Args: []Node{
+				&FuncNode{Param: "stringz"},
+			},
+		},
+	},
+	{
+		Text: "${string=${stringz}}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "=",
+			Args: []Node{
+				&FuncNode{Param: "stringz"},
+			},
+		},
+	},
+	{
+		Text: "${string//${stringy}/${stringz}}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "//",
+			Args: []Node{
+				&FuncNode{Param: "stringy"},
+				&FuncNode{Param: "stringz"},
+			},
+		},
+	},
+}
+
+func TestParse(t *testing.T) {
+	for i, test := range tests {
+
+		// if i != 24 {
+		// 	continue
+		// }
+
+		got, err := Parse(test.Text)
+		if err != nil {
+			t.Error(err)
+		}
+
+		fmt.Printf("TESTING %d, %s\n", i, test.Text)
+
+		diff := pretty.Diff(test.Node, got.Root)
+		if len(diff) != 0 {
+			t.Errorf("failed to parse %d, %s. %s", i, test.Text, diff)
+			pretty.Println(got.Root)
+		}
+	}
+}
