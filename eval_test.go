@@ -138,7 +138,7 @@ func TestExpand(t *testing.T) {
 	}
 
 	for _, expr := range expressions {
-		output, err := Expand(expr.input, func(s string) string {
+		output, err := Eval(expr.input, func(s string) string {
 			return expr.params[s]
 		})
 		if err != nil {
@@ -163,7 +163,7 @@ func TestFuzz(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		var in string
 		f.Fuzz(&in)
-		_, err := Expand(in, noopFunc)
+		_, err := Eval(in, noopFunc)
 		if err != nil {
 			t.Errorf("got error parsing input %q", in)
 		}
