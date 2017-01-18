@@ -119,6 +119,13 @@ func TestExpand(t *testing.T) {
 		// 	input:  "${filename%%.*}",
 		// 	output: "bash",
 		// },
+
+		// nested parameters
+		{
+			params: map[string]string{"var01": "abcdEFGH28ij"},
+			input:  "${var=${var01^^}}",
+			output: "ABCDEFGH28IJ",
+		},
 	}
 
 	for _, expr := range expressions {
