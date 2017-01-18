@@ -32,7 +32,7 @@ type (
 	// 	Name string
 	// }
 	//
-	// UpperNode struct {
+	// CaseNode struct {
 	// 	Name string
 	// 	First bool
 	// }
@@ -42,7 +42,7 @@ type (
 	// 	First bool
 	// }
 	//
-	// SubstringNode struct {
+	// SubstrNode struct {
 	// 	Name string
 	// 	Pos Node
 	// 	Len Node
@@ -54,7 +54,7 @@ type (
 	// 	Replacement Node
 	// }
 	//
-	// RemoveNode struct{
+	// TrimNode struct{
 	//
 	// }
 	//

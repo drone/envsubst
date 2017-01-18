@@ -1,6 +1,10 @@
 package envexp
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/google/gofuzz"
+)
 
 // test cases sourced from tldp.org
 // http://www.tldp.org/LDP/abs/html/parameter-substitution.html
@@ -11,7 +15,12 @@ func TestExpand(t *testing.T) {
 		input  string
 		output string
 	}{
-
+		// text-only
+		{
+			params: map[string]string{},
+			input:  "abcdEFGH28ij",
+			output: "abcdEFGH28ij",
+		},
 		// length
 		{
 			params: map[string]string{"var01": "abcdEFGH28ij"},
@@ -129,15 +138,34 @@ func TestExpand(t *testing.T) {
 	}
 
 	for _, expr := range expressions {
-		output, _ := Expand(expr.input, func(s string) string {
+		output, err := Expand(expr.input, func(s string) string {
 			return expr.params[s]
 		})
+		if err != nil {
+			t.Errorf("Want %q expanded but got error %q", expr.input, err)
+		}
 
 		if output != expr.output {
 			t.Errorf("Want %q expanded to %q, got %q",
 				expr.input,
 				expr.output,
 				output)
+		}
+	}
+}
+
+func TestFuzz(t *testing.T) {
+	noopFunc := func(s string) string {
+		return ""
+	}
+
+	f := fuzz.New()
+	for i := 0; i < 1000; i++ {
+		var in string
+		f.Fuzz(&in)
+		_, err := Expand(in, noopFunc)
+		if err != nil {
+			t.Errorf("got error parsing input %q", in)
 		}
 	}
 }

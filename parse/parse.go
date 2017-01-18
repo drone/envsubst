@@ -109,7 +109,7 @@ func (t *Tree) parseFunc() (Node, error) {
 }
 
 // parse a substitution function parameter.
-func (t *Tree) parseParam(accept acceptFunc, mode uint) (Node, error) {
+func (t *Tree) parseParam(accept acceptFunc, mode byte) (Node, error) {
 	t.scanner.accept = accept
 	t.scanner.mode = mode | scanLbrack
 	switch t.scanner.scan() {

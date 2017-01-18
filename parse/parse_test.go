@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/kr/pretty"
@@ -18,6 +17,10 @@ var tests = []struct {
 	{
 		Text: "text",
 		Node: &TextNode{Value: "text"},
+	},
+	{
+		Text: "}text",
+		Node: &TextNode{Value: "}text"},
 	},
 
 	//
@@ -383,22 +386,15 @@ var tests = []struct {
 }
 
 func TestParse(t *testing.T) {
-	for i, test := range tests {
-
-		// if i != 24 {
-		// 	continue
-		// }
-
+	for _, test := range tests {
 		got, err := Parse(test.Text)
 		if err != nil {
 			t.Error(err)
 		}
 
-		fmt.Printf("TESTING %d, %s\n", i, test.Text)
-
 		diff := pretty.Diff(test.Node, got.Root)
 		if len(diff) != 0 {
-			t.Errorf("failed to parse %d, %s. %s", i, test.Text, diff)
+			t.Errorf("Unexpected results parsing %q. Diff %s", test.Text, diff)
 			pretty.Println(got.Root)
 		}
 	}

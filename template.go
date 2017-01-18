@@ -5,7 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/drone/expander/parse"
+	"github.com/drone/envexp/parse"
 )
 
 // state represents the state of template execution. It is not part of the

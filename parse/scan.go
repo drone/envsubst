@@ -28,7 +28,7 @@ const (
 
 // predefined mode bits to control recognition of tokens.
 const (
-	scanIdent uint = iota + 1
+	scanIdent byte = 1 << iota
 	scanLbrack
 	scanRbrack
 	scanEscape
@@ -44,7 +44,7 @@ type scanner struct {
 	pos   int
 	start int
 	width int
-	mode  uint
+	mode  byte
 
 	accept acceptFunc
 }
