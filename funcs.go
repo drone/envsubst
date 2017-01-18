@@ -1,4 +1,4 @@
-package envexp
+package envsubst
 
 import (
 	"strconv"
