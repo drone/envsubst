@@ -22,6 +22,18 @@ var tests = []struct {
 		Text: "}text",
 		Node: &TextNode{Value: "}text"},
 	},
+	{
+		Text: "http://github.com",
+		Node: &TextNode{Value: "http://github.com"}, // should not escape double slash
+	},
+	{
+		Text: "$${string}",
+		Node: &TextNode{Value: "${string}"}, // should not escape double dollar
+	},
+	{
+		Text: "$$string",
+		Node: &TextNode{Value: "$string"}, // should not escape double dollar
+	},
 
 	//
 	// variable only
