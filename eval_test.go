@@ -146,6 +146,12 @@ func TestExpand(t *testing.T) {
 			input:  "some text ${var01}$${var$${var01}$var01${var01}",
 			output: "some text abcdEFGH28ij${var${var01}$var01abcdEFGH28ij",
 		},
+		// some common escaping use cases
+		{
+			params: map[string]string{"stringZ": "foo/bar"},
+			input:  `${stringZ/\//-}`,
+			output: "foo-bar",
+		},
 	}
 
 	for _, expr := range expressions {
