@@ -104,30 +104,30 @@ func TestExpand(t *testing.T) {
 			input:  "${stringZ/abc/xyz}",
 			output: "xyzABC123ABCabc",
 		},
-		// // delete shortest match prefix
-		// {
-		// 	params: map[string]string{"filename": "bash.string.txt"},
-		// 	input:  "${filename#*.}",
-		// 	output: "txt",
-		// },
-		// // delete longest match prefix
-		// {
-		// 	params: map[string]string{"filename": "bash.string.txt"},
-		// 	input:  "${filename#*.}",
-		// 	output: "string.txt",
-		// },
-		// // delete shortest match suffix
-		// {
-		// 	params: map[string]string{"filename": "bash.string.txt"},
-		// 	input:  "${filename%.*}",
-		// 	output: "bash.string",
-		// },
-		// // delete longest match suffix
-		// {
-		// 	params: map[string]string{"filename": "bash.string.txt"},
-		// 	input:  "${filename%%.*}",
-		// 	output: "bash",
-		// },
+		// delete shortest match prefix
+		{
+			params: map[string]string{"filename": "bash.string.txt"},
+			input:  "${filename#*.}",
+			output: "string.txt",
+		},
+		// delete longest match prefix
+		{
+			params: map[string]string{"filename": "bash.string.txt"},
+			input:  "${filename##*.}",
+			output: "txt",
+		},
+		// delete shortest match suffix
+		{
+			params: map[string]string{"filename": "bash.string.txt"},
+			input:  "${filename%.*}",
+			output: "bash.string",
+		},
+		// delete longest match suffix
+		{
+			params: map[string]string{"filename": "bash.string.txt"},
+			input:  "${filename%%.*}",
+			output: "bash",
+		},
 
 		// nested parameters
 		{
