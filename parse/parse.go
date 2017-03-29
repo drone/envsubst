@@ -259,7 +259,7 @@ func (t *Tree) parseReplaceFunc(name string) (Node, error) {
 	}
 
 	{
-		param, err := t.parseParam(acceptNotClosing, scanIdent)
+		param, err := t.parseParam(acceptNotClosing, scanIdent|scanEscape)
 		if err != nil {
 			return nil, err
 		}
