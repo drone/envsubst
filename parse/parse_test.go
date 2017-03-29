@@ -329,6 +329,36 @@ var tests = []struct {
 			},
 		},
 	},
+	{
+		Text: `${string/position/\/length}`,
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/",
+			Args: []Node{
+				&TextNode{
+					Value: "position",
+				},
+				&TextNode{
+					Value: "/length",
+				},
+			},
+		},
+	},
+	{
+		Text: `${string/position/\/length\\}`,
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/",
+			Args: []Node{
+				&TextNode{
+					Value: "position",
+				},
+				&TextNode{
+					Value: "/length\\",
+				},
+			},
+		},
+	},
 
 	// functions in functions
 	{
