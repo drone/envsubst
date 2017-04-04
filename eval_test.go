@@ -110,11 +110,31 @@ func TestExpand(t *testing.T) {
 			input:  "${filename#*.}",
 			output: "string.txt",
 		},
+		{
+			params: map[string]string{"filename": "path/to/file"},
+			input:  "${filename#*/}",
+			output: "to/file",
+		},
+		{
+			params: map[string]string{"filename": "/path/to/file"},
+			input:  "${filename#*/}",
+			output: "path/to/file",
+		},
 		// delete longest match prefix
 		{
 			params: map[string]string{"filename": "bash.string.txt"},
 			input:  "${filename##*.}",
 			output: "txt",
+		},
+		{
+			params: map[string]string{"filename": "path/to/file"},
+			input:  "${filename##*/}",
+			output: "file",
+		},
+		{
+			params: map[string]string{"filename": "/path/to/file"},
+			input:  "${filename##*/}",
+			output: "file",
 		},
 		// delete shortest match suffix
 		{
