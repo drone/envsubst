@@ -4,8 +4,11 @@ workspace:
 
 pipeline:
   build:
-    image: golang:1.6
+    image: golang:1.8
     commands:
       - go get -t ./...
-      - go build
-      - go test ./...
+      - go test -v ./... | tee gotest.out
+  gotest:
+    image: plugins/gotest:latest
+    debug: true
+    pull: true
