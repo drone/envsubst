@@ -1,6 +1,7 @@
 package envsubst
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/google/gofuzz"
@@ -172,9 +173,16 @@ func TestExpand(t *testing.T) {
 			input:  `${stringZ/\//-}`,
 			output: "foo-bar",
 		},
+		// substitute with a blank string
+		{
+			params: map[string]string{"stringZ": "foo.bar"},
+			input:  `${stringZ/./}`,
+			output: "foobar",
+		},
 	}
 
 	for _, expr := range expressions {
+		fmt.Println(expr.input)
 		output, err := Eval(expr.input, func(s string) string {
 			return expr.params[s]
 		})
