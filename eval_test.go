@@ -172,10 +172,10 @@ func TestExpand(t *testing.T) {
 			input:  `${stringZ/\//-}`,
 			output: "foo-bar",
 		},
-				{
+		{
 			params: map[string]string{"stringZ": "foo.bar"},
-			input:  `${stringZ/./-}`,
-			output: "foo-bar",
+			input:  `py${stringZ/./-}`,
+			output: "pyfoo-bar",
 		},
 	}
 
