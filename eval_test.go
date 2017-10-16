@@ -1,7 +1,6 @@
 package envsubst
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/google/gofuzz"
@@ -182,7 +181,7 @@ func TestExpand(t *testing.T) {
 	}
 
 	for _, expr := range expressions {
-		fmt.Println(expr.input)
+		t.Logf(expr.input)
 		output, err := Eval(expr.input, func(s string) string {
 			return expr.params[s]
 		})
