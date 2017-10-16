@@ -7,8 +7,4 @@ pipeline:
     image: golang:1.8
     commands:
       - go get -t ./...
-      - go test -v ./... | tee gotest.out
-  gotest:
-    image: plugins/gotest:latest
-    debug: true
-    pull: true
+      - go test -v ./...
