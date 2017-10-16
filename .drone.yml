@@ -6,5 +6,6 @@ pipeline:
   build:
     image: golang:1.8
     commands:
+      - set -o pipefail
       - go get -t ./...
       - go test -v ./...

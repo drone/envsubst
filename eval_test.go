@@ -172,9 +172,15 @@ func TestExpand(t *testing.T) {
 			input:  `${stringZ/\//-}`,
 			output: "foo-bar",
 		},
+		{
+			params: map[string]string{"stringZ": "foo.bar"},
+			input:  `py${stringZ/./-}`,
+			output: "pyfoo-bar",
+		},
 	}
 
 	for _, expr := range expressions {
+		fmt.Println(expr.input)
 		output, err := Eval(expr.input, func(s string) string {
 			return expr.params[s]
 		})
