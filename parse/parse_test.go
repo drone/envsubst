@@ -3,7 +3,7 @@ package parse
 import (
 	"testing"
 
-	"github.com/kr/pretty"
+	"github.com/google/go-cmp/cmp"
 )
 
 var tests = []struct {
@@ -434,10 +434,8 @@ func TestParse(t *testing.T) {
 			t.Error(err)
 		}
 
-		diff := pretty.Diff(test.Node, got.Root)
-		if len(diff) != 0 {
-			t.Errorf("Unexpected results parsing %q. Diff %s", test.Text, diff)
-			pretty.Println(got.Root)
+		if diff := cmp.Diff(test.Node, got.Root); diff != "" {
+			t.Errorf(diff)
 		}
 	}
 }

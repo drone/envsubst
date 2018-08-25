@@ -1,10 +1,6 @@
 package envsubst
 
-import (
-	"testing"
-
-	"github.com/google/gofuzz"
-)
+import "testing"
 
 // test cases sourced from tldp.org
 // http://www.tldp.org/LDP/abs/html/parameter-substitution.html
@@ -194,22 +190,6 @@ func TestExpand(t *testing.T) {
 				expr.input,
 				expr.output,
 				output)
-		}
-	}
-}
-
-func TestFuzz(t *testing.T) {
-	noopFunc := func(s string) string {
-		return ""
-	}
-
-	f := fuzz.New()
-	for i := 0; i < 1000; i++ {
-		var in string
-		f.Fuzz(&in)
-		_, err := Eval(in, noopFunc)
-		if err != nil {
-			t.Errorf("got error parsing input %q", in)
 		}
 	}
 }
