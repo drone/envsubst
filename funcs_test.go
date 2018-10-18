@@ -60,3 +60,25 @@ func Test_default(t *testing.T) {
 		t.Errorf("Expect default function uses default value, when variable empty")
 	}
 }
+
+func Test_substr(t *testing.T) {
+	got, want := toSubstr("123456789123456789", "0", "8"), "12345678"
+	if got != want {
+		t.Errorf("Expect substr function to cut from begining to length")
+	}
+
+	got, want = toSubstr("123456789123456789", "1", "8"), "23456789"
+	if got != want {
+		t.Errorf("Expect substr function to cut from offset to length")
+	}
+
+	got, want = toSubstr("123456789123456789", "9"), "123456789"
+	if got != want {
+		t.Errorf("Expect substr function to cut beginnging with offset")
+	}
+
+	got, want = toSubstr("123456789123456789", "9", "50"), "123456789"
+	if got != want {
+		t.Errorf("Expect substr function to ignore length if out of bound")
+	}
+}
