@@ -206,7 +206,7 @@ func acceptRune(r rune, i int) bool {
 }
 
 func acceptIdent(r rune, i int) bool {
-	return unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_'
+	return unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_' || r == '-'
 }
 
 func acceptColon(r rune, i int) bool {

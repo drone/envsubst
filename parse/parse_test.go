@@ -42,6 +42,14 @@ var tests = []struct {
 		Text: "${string}",
 		Node: &FuncNode{Param: "string"},
 	},
+	{
+		Text: "${string_A}",
+		Node: &FuncNode{Param: "string_A"},
+	},
+	{
+		Text: "${string_A-b}",
+		Node: &FuncNode{Param: "string_A-b"},
+	},
 
 	//
 	// text transform functions
