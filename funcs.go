@@ -72,6 +72,18 @@ func toSubstr(s string, args ...string) string {
 		return s
 	}
 
+	if pos < 0 {
+		// if pos is negative (counts from the end) add it
+		// to length to get first character offset
+		pos = len(s) + pos
+
+		// if negative offset exceeds the length of the string
+		// start from 0
+		if pos < 0 {
+			pos = 0
+		}
+	}
+
 	if len(args) == 1 {
 		if pos < len(s) {
 			return s[pos:]
