@@ -1,33 +1,38 @@
-Go package for expanding variables in a string using ${var} syntax. Includes support for bash string replacement functions.
+# envsubst
 
-Documentation:
+Go package for expanding variables in a string using `${var}` syntax. Includes
+support for bash string replacement functions.
 
-    http://godoc.org/github.com/drone/envsubst
+## Documentation
 
-Supported Functions:
+[Documentation can be found on GoDoc][doc].
 
-    ${var^}
-    ${var^^}
-    ${var,}
-    ${var,,}
-    ${var:position}
-    ${var:position:length}
-    ${var#substring}
-    ${var##substring}
-    ${var%substring}
-    ${var%%substring}
-    ${var/substring/replacement}
-    ${var//substring/replacement}
-    ${var/#substring/replacement}
-    ${var/%substring/replacement}
-    ${#var}
-    ${var=default}
-    ${var:=default}
-    ${var:-default}
+## Supported Functions
 
-Unsupported Functions:
+* `${var^}`
+* `${var^^}`
+* `${var,}`
+* `${var,,}`
+* `${var:position}`
+* `${var:position:length}`
+* `${var#substring}`
+* `${var##substring}`
+* `${var%substring}`
+* `${var%%substring}`
+* `${var/substring/replacement}`
+* `${var//substring/replacement}`
+* `${var/#substring/replacement}`
+* `${var/%substring/replacement}`
+* `${#var}`
+* `${var=default}`
+* `${var:=default}`
+* `${var:-default}`
 
-    ${var-default}
-    ${var+default}
-    ${var:?default}
-    ${var:+default}
+## Unsupported Functions
+
+* `${var-default}`
+* `${var+default}`
+* `${var:?default}`
+* `${var:+default}`
+
+  [doc]: http://godoc.org/github.com/drone/envsubst
