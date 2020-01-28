@@ -50,7 +50,7 @@ func toUpperFirst(s string, args ...string) string {
 }
 
 // toDefault returns a copy of the string s if not empty, else
-// returns a copy of the first string arugment.
+// returns a copy of the first string argument.
 func toDefault(s string, args ...string) string {
 	if len(s) == 0 && len(args) == 1 {
 		s = args[0]

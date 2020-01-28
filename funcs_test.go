@@ -64,7 +64,7 @@ func Test_default(t *testing.T) {
 func Test_substr(t *testing.T) {
 	got, want := toSubstr("123456789123456789", "0", "8"), "12345678"
 	if got != want {
-		t.Errorf("Expect substr function to cut from begining to length")
+		t.Errorf("Expect substr function to cut from beginning to length")
 	}
 
 	got, want = toSubstr("123456789123456789", "1", "8"), "23456789"
