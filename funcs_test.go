@@ -91,4 +91,9 @@ func Test_substr(t *testing.T) {
 	if got != want {
 		t.Errorf("Expect substr function to cut from the beginning to length for negative offsets exceeding string length")
 	}
+	
+	got, want = toSubstr("12345678", "9", "1"), ""
+	if got != want {
+		t.Errorf("Expect substr function to cut entire string if pos is itself out of bound")
+	}
 }

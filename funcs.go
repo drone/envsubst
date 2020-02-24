@@ -101,9 +101,14 @@ func toSubstr(s string, args ...string) string {
 	}
 
 	if pos+length >= len(s) {
+		if pos < len(s) {
+			// if the position exceeds the length of the
+			// string just return the rest of it like bash
+			return s[pos:]
+		}
 		// if the position exceeds the length of the
-		// string just return the rest of it like bash
-		return s[pos:]
+		// string an empty string is returned
+		return ""
 	}
 
 	return s[pos : pos+length]
