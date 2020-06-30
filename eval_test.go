@@ -168,6 +168,11 @@ func TestExpand(t *testing.T) {
 			input:  `${stringZ/\//-}`,
 			output: "foo-bar",
 		},
+		{
+			params: map[string]string{"stringZ": "foo/bar/baz"},
+			input:  `${stringZ//\//-}`,
+			output: "foo-bar-baz",
+		},
 		// substitute with a blank string
 		{
 			params: map[string]string{"stringZ": "foo.bar"},
