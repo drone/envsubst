@@ -62,7 +62,7 @@ func TestExpand(t *testing.T) {
 		// default not used
 		{
 			params: map[string]string{"var": "abc"},
-			input:  "${var=abc}",
+			input:  "${var=xyz}",
 			output: "abc",
 		},
 		// default used
