@@ -1,6 +1,8 @@
 package parse
 
-import "errors"
+import (
+	"errors"
+)
 
 // ErrBadSubstitution represents a substitution parsing error.
 var ErrBadSubstitution = errors.New("bad substitution")
@@ -116,6 +118,10 @@ func (t *Tree) parseParam(accept acceptFunc, mode byte) (Node, error) {
 	case tokenLbrack:
 		return t.parseFunc()
 	case tokenIdent:
+		return newTextNode(
+			t.scanner.string(),
+		), nil
+	case tokenRbrack:
 		return newTextNode(
 			t.scanner.string(),
 		), nil
@@ -293,18 +299,20 @@ func (t *Tree) parseDefaultFunc(name string) (Node, error) {
 		return nil, ErrBadSubstitution
 	}
 
-	// scan arg[1]
-	{
+	// loop through all possible runes in default param
+	for {
+		// this acts as the break condition. Peek to see if we reached the end
+		switch t.scanner.peek() {
+		case '}':
+			return node, t.consumeRbrack()
+		}
 		param, err := t.parseParam(acceptNotClosing, scanIdent)
 		if err != nil {
 			return nil, err
 		}
 
-		// param.Value = t.scanner.string()
 		node.Args = append(node.Args, param)
 	}
-
-	return node, t.consumeRbrack()
 }
 
 // parses the ${param,} string function

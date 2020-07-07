@@ -50,10 +50,11 @@ func toUpperFirst(s string, args ...string) string {
 }
 
 // toDefault returns a copy of the string s if not empty, else
-// returns a copy of the first string argument.
+// returns a concatenation of the args without a separator.
 func toDefault(s string, args ...string) string {
-	if len(s) == 0 && len(args) == 1 {
-		s = args[0]
+	if len(s) == 0 && len(args) > 0 {
+		// don't use any separator
+		s = strings.Join(args, "")
 	}
 	return s
 }
