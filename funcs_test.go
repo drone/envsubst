@@ -57,7 +57,12 @@ func Test_default(t *testing.T) {
 
 	got, want = toDefault("", "Hola Mundo"), "Hola Mundo"
 	if got != want {
-		t.Errorf("Expect default function uses default value, when variable empty")
+		t.Errorf("Expect default function uses default value, when variable empty. Got %s, Want %s", got, want)
+	}
+
+	got, want = toDefault("", "Hola Mundo", "-Bonjour le monde", "-Halló heimur"), "Hola Mundo-Bonjour le monde-Halló heimur"
+	if got != want {
+		t.Errorf("Expect default function to use concatenated args when variable empty. Got %s, Want %s", got, want)
 	}
 }
 

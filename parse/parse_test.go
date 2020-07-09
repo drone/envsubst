@@ -415,6 +415,52 @@ var tests = []struct {
 		},
 	},
 	{
+		Text: "${string=prefix-${var}}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "=",
+			Args: []Node{
+				&TextNode{Value: "prefix-"},
+				&FuncNode{Param: "var"},
+			},
+		},
+	},
+	{
+		Text: "${string=${var}-suffix}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "=",
+			Args: []Node{
+				&FuncNode{Param: "var"},
+				&TextNode{Value: "-suffix"},
+			},
+		},
+	},
+	{
+		Text: "${string=prefix-${var}-suffix}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "=",
+			Args: []Node{
+				&TextNode{Value: "prefix-"},
+				&FuncNode{Param: "var"},
+				&TextNode{Value: "-suffix"},
+			},
+		},
+	},
+	{
+		Text: "${string=prefix${var} suffix}",
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "=",
+			Args: []Node{
+				&TextNode{Value: "prefix"},
+				&FuncNode{Param: "var"},
+				&TextNode{Value: " suffix"},
+			},
+		},
+	},
+	{
 		Text: "${string//${stringy}/${stringz}}",
 		Node: &FuncNode{
 			Param: "string",
@@ -429,6 +475,7 @@ var tests = []struct {
 
 func TestParse(t *testing.T) {
 	for _, test := range tests {
+		t.Log(test.Text)
 		got, err := Parse(test.Text)
 		if err != nil {
 			t.Error(err)

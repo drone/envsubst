@@ -72,6 +72,21 @@ func TestExpand(t *testing.T) {
 			output: "xyz",
 		},
 		{
+			params: map[string]string{"default_var": "foo"},
+			input:  "something ${var=${default_var}}",
+			output: "something foo",
+		},
+		{
+			params: map[string]string{"default_var": "foo1"},
+			input:  `foo: ${var=${default_var}-suffix}`,
+			output: "foo: foo1-suffix",
+		},
+		{
+			params: map[string]string{"default_var": "foo1"},
+			input:  `foo: ${var=prefix${default_var}-suffix}`,
+			output: "foo: prefixfoo1-suffix",
+		},
+		{
 			params: map[string]string{},
 			input:  "${var:=xyz}",
 			output: "xyz",
@@ -161,6 +176,11 @@ func TestExpand(t *testing.T) {
 			params: map[string]string{"var01": "abcdEFGH28ij"},
 			input:  "some text ${var01}$${var$${var01}$var01${var01}",
 			output: "some text abcdEFGH28ij${var${var01}$var01abcdEFGH28ij",
+		},
+		{
+			params: map[string]string{"default_var": "foo"},
+			input:  "something $${var=${default_var}}",
+			output: "something ${var=foo}",
 		},
 		// some common escaping use cases
 		{
