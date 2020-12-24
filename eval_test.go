@@ -202,19 +202,21 @@ func TestExpand(t *testing.T) {
 	}
 
 	for _, expr := range expressions {
-		t.Logf(expr.input)
-		output, err := Eval(expr.input, func(s string) string {
-			return expr.params[s]
-		})
-		if err != nil {
-			t.Errorf("Want %q expanded but got error %q", expr.input, err)
-		}
+		t.Run(expr.input, func(t *testing.T) {
+			t.Logf(expr.input)
+			output, err := Eval(expr.input, func(s string) string {
+				return expr.params[s]
+			})
+			if err != nil {
+				t.Errorf("Want %q expanded but got error %q", expr.input, err)
+			}
 
-		if output != expr.output {
-			t.Errorf("Want %q expanded to %q, got %q",
-				expr.input,
-				expr.output,
-				output)
-		}
+			if output != expr.output {
+				t.Errorf("Want %q expanded to %q, got %q",
+					expr.input,
+					expr.output,
+					output)
+			}
+		})
 	}
 }

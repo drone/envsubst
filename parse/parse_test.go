@@ -476,13 +476,15 @@ var tests = []struct {
 func TestParse(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.Text)
-		got, err := Parse(test.Text)
-		if err != nil {
-			t.Error(err)
-		}
+		t.Run(test.Text, func(t *testing.T) {
+			got, err := Parse(test.Text)
+			if err != nil {
+				t.Error(err)
+			}
 
-		if diff := cmp.Diff(test.Node, got.Root); diff != "" {
-			t.Errorf(diff)
-		}
+			if diff := cmp.Diff(test.Node, got.Root); diff != "" {
+				t.Errorf(diff)
+			}
+		})
 	}
 }
