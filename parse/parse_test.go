@@ -34,6 +34,10 @@ var tests = []struct {
 		Text: "$$string",
 		Node: &TextNode{Value: "$string"}, // should not escape double dollar
 	},
+	{
+		Text: `\\.\pipe\pipename`,
+		Node: &TextNode{Value: `\\.\pipe\pipename`},
+	},
 
 	//
 	// variable only
@@ -297,6 +301,28 @@ var tests = []struct {
 			},
 		},
 	},
+	// text before and after function with \\ outside of function
+	{
+		Text: `\\ hello ${#string} world \\`,
+		Node: &ListNode{
+			Nodes: []Node{
+				&TextNode{
+					Value: `\\ hello `,
+				},
+				&ListNode{
+					Nodes: []Node{
+						&FuncNode{
+							Param: "string",
+							Name:  "#",
+						},
+						&TextNode{
+							Value: ` world \\`,
+						},
+					},
+				},
+			},
+		},
+	},
 
 	// escaped function arguments
 	{
@@ -355,6 +381,21 @@ var tests = []struct {
 				},
 				&TextNode{
 					Value: "/length\\",
+				},
+			},
+		},
+	},
+	{
+		Text: `${string/position/\/leng\\th}`,
+		Node: &FuncNode{
+			Param: "string",
+			Name:  "/",
+			Args: []Node{
+				&TextNode{
+					Value: "position",
+				},
+				&TextNode{
+					Value: "/leng\\th",
 				},
 			},
 		},

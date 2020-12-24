@@ -193,6 +193,12 @@ func TestExpand(t *testing.T) {
 			input:  `${stringZ//\//-}`,
 			output: "foo-bar-baz",
 		},
+		// escape outside of expansion shouldn't be processed
+		{
+			params: map[string]string{"default_var": "foo"},
+			input:  "\\\\something ${var=${default_var}}",
+			output: "\\\\something foo",
+		},
 		// substitute with a blank string
 		{
 			params: map[string]string{"stringZ": "foo.bar"},
