@@ -11,7 +11,7 @@ Includes support for bash string replacement functions.
 
 | __Expression__                | __Meaning__                                                     |
 | -----------------             | --------------                                                  |
-| `${var}`                      | Value of var
+| `${var}`                      | Value of `$var`
 | `${var-${DEFAULT}}`           | If `$var` is not set, evaluate expression as `${DEFAULT}`
 | `${var:-${DEFAULT}}`          | If `$var` is not set or is empty, evaluate expression as `${DEFAULT}`
 | `${var=${DEFAULT}}`           | If `$var` is not set, evaluate expression as `${DEFAULT}`
@@ -22,8 +22,8 @@ Includes support for bash string replacement functions.
 | `${var,}`                     | Lowercase first character of `$var`
 | `${var,,}`                    | Lowercase all characters in `$var`
 | `${#var}`                     | String length of `$var`
-| `${var:n}`                    | Offset `$var` `n` characters from the left
-| `${var: -n}`                  | Offset `$var` `n` characters from the right
+| `${var:n}`                    | Offset `$var` `n` characters from start
+| `${var: -n}`                  | Offset `$var` `n` characters from end
 | `${var:n:len}`                | Offset `$var` `n` characters of `len` length
 | `${var#pattern}`              | Strip shortest `pattern` match from start
 | `${var##pattern}`             | Strip longest `pattern` match from start
