@@ -24,7 +24,7 @@ Includes support for bash string replacement functions.
 | `${#var}`                     | String length of `$var`
 | `${var:n}`                    | Offset `$var` `n` characters from start
 | `${var: -n}`                  | Offset `$var` `n` characters from end
-| `${var:n:len}`                | Offset `$var` `n` characters of `len` length
+| `${var:n:len}`                | Offset `$var` `n` characters with max length of `len`
 | `${var#pattern}`              | Strip shortest `pattern` match from start
 | `${var##pattern}`             | Strip longest `pattern` match from start
 | `${var%pattern}`              | Strip shortest `pattern` match from end
