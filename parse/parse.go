@@ -50,6 +50,7 @@ func (t *Tree) Parse(buf string) (tree *Tree, err error) {
 func (t *Tree) parseAny() (Node, error) {
 	t.scanner.accept = acceptRune
 	t.scanner.mode = scanIdent | scanLbrack | scanEscape
+	t.scanner.escapeChars = dollar
 
 	switch t.scanner.scan() {
 	case tokenIdent:
@@ -86,6 +87,8 @@ func (t *Tree) parseAny() (Node, error) {
 }
 
 func (t *Tree) parseFunc() (Node, error) {
+	// Turn on all escape characters
+	t.scanner.escapeChars = escapeAll
 	switch t.scanner.peek() {
 	case '#':
 		return t.parseLenFunc()

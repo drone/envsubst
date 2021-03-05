@@ -2,11 +2,11 @@ package main
 
 import (
 	"bufio"
-	"os"
-	"log"
 	"fmt"
+	"log"
+	"os"
 
-	"github.com/drone/envsubst"
+	"github.com/drone/envsubst/v2"
 )
 
 func main() {
