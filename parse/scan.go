@@ -24,6 +24,8 @@ const (
 	tokenLbrack
 	tokenRbrack
 	tokenQuote
+	tokenBarevar
+	tokenDoubleDollar
 )
 
 // predefined mode bits to control recognition of tokens.
@@ -100,6 +102,17 @@ func (s *scanner) peek() rune {
 	return r
 }
 
+func (s *scanner) peektwo() rune {
+	r := s.read()
+	if r == eof {
+		return r
+	}
+	r2 := s.read()
+	s.unread()
+	s.unread()
+	return r2
+}
+
 // string returns the string corresponding to the most recently
 // scanned token. Valid after calling scan().
 func (s *scanner) string() string {
@@ -121,6 +134,10 @@ func (s *scanner) scan() token {
 		return tokenEOF
 	case s.scanLbrack(r):
 		return tokenLbrack
+	case s.scanBareVar(r):
+		return tokenBarevar
+	case s.scanDoubleDollar(r):
+		return tokenDoubleDollar
 	case s.scanRbrack(r):
 		return tokenRbrack
 	case s.scanIdent(r):
@@ -151,6 +168,15 @@ loop:
 			s.unread()
 			s.unread()
 			break loop
+		case s.scanBareVar(r):
+			s.unread()
+			break loop
+		case s.scanDoubleDollar(r):
+			s.unread()
+			break loop
+		case s.scanBareVar(r):
+			s.unread()
+			break loop
 		}
 		if s.scanEscaped(r) {
 			s.skip()
@@ -162,6 +188,33 @@ loop:
 		}
 	}
 	return true
+}
+
+// scanBareVar reads the next token or Unicode character from source
+// and returns true if the start of a bare variable (i.e. without brackets)
+// is encountered
+func (s *scanner) scanBareVar(r rune) bool {
+	if s.mode&scanIdent == 0 {
+		return false
+	}
+	if r == '$' {
+		return acceptIdent(s.peek(), 0)
+	}
+
+	return false
+}
+
+// scanDoubleDollar reads the next token or Unicode character from source
+// and returns true if $$ is encountered
+func (s *scanner) scanDoubleDollar(r rune) bool {
+	if s.mode&scanIdent == 0 {
+		return false
+	}
+	if r == '$' {
+		return s.peek() == '$'
+	}
+
+	return false
 }
 
 // scanLbrack reads the next token or Unicode character from source

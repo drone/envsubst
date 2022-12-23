@@ -28,11 +28,11 @@ var tests = []struct {
 	},
 	{
 		Text: "$${string}",
-		Node: &TextNode{Value: "${string}"}, // should not escape double dollar
+		Node: &ListNode{Nodes: []Node{&TextNode{Value: "$"}, &FuncNode{Param: "string"}}},
 	},
 	{
 		Text: "$$string",
-		Node: &TextNode{Value: "$string"}, // should not escape double dollar
+		Node: &ListNode{Nodes: []Node{&TextNode{Value: "$"}, &FuncNode{Param: "string"}}},
 	},
 	{
 		Text: `\\.\pipe\pipename`,
@@ -516,15 +516,14 @@ var tests = []struct {
 
 func TestParse(t *testing.T) {
 	for _, test := range tests {
-		t.Log(test.Text)
 		t.Run(test.Text, func(t *testing.T) {
 			got, err := Parse(test.Text)
 			if err != nil {
-				t.Error(err)
+				t.Fatal(err)
 			}
 
 			if diff := cmp.Diff(test.Node, got.Root); diff != "" {
-				t.Errorf(diff)
+				t.Fatalf(diff)
 			}
 		})
 	}

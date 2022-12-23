@@ -2,6 +2,7 @@ package parse
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
@@ -23,6 +24,11 @@ var (
 	// default function.
 	ErrParseDefaultFunction = errors.New("unable to parse default function")
 )
+
+// ErrParseDoubleDollar represents the error when unable to parse a $$
+func ErrParseDoubleDollar(str string) error {
+	return fmt.Errorf("unable to parse double dollar sign %s", str)
+}
 
 // Tree is the representation of a single parsed SQL statement.
 type Tree struct {
@@ -81,9 +87,51 @@ func (t *Tree) parseAny() (Node, error) {
 			return left, nil
 		}
 		return newListNode(left, right), nil
+	case tokenBarevar:
+		left, err := t.parseBareVar()
+		if err != nil {
+			return nil, err
+		}
+
+		right, err := t.parseAny()
+		switch {
+		case err != nil:
+			return nil, err
+		case right == empty:
+			return left, nil
+		}
+		return newListNode(left, right), nil
+	case tokenDoubleDollar:
+		left := newTextNode("$")
+
+		right, err := t.parseAny()
+		switch {
+		case err != nil:
+			return nil, err
+		case right == empty:
+			return left, nil
+		}
+		return newListNode(left, right), nil
 	}
 
 	return nil, ErrBadSubstitution
+}
+
+func (t *Tree) parseBareVar() (Node, error) {
+	t.scanner.accept = acceptIdent
+	t.scanner.mode = scanIdent
+
+	var name string
+	switch t.scanner.scan() {
+	case tokenIdent:
+		name = t.scanner.string()
+	default:
+		return nil, ErrParseVariableName
+	}
+
+	node := newFuncNode(name)
+
+	return node, nil
 }
 
 func (t *Tree) parseFunc() (Node, error) {
@@ -121,10 +169,12 @@ func (t *Tree) parseFunc() (Node, error) {
 	}
 
 	t.scanner.accept = acceptIdent
-	t.scanner.mode = scanRbrack
+	t.scanner.mode = scanRbrack | scanIdent | scanLbrack | scanEscape
 	switch t.scanner.scan() {
 	case tokenRbrack:
 		return newFuncNode(name), nil
+	case tokenBarevar, tokenLbrack:
+		return t.parseAny()
 	default:
 		return nil, ErrMissingClosingBrace
 	}
@@ -137,6 +187,19 @@ func (t *Tree) parseParam(accept acceptFunc, mode byte) (Node, error) {
 	switch t.scanner.scan() {
 	case tokenLbrack:
 		return t.parseFunc()
+	case tokenBarevar:
+		return t.parseBareVar()
+	case tokenDoubleDollar:
+		left := newTextNode("$")
+
+		right, err := t.parseParam(accept, mode)
+		switch {
+		case err != nil:
+			return nil, err
+		case right == empty:
+			return left, nil
+		}
+		return newListNode(left, right), nil
 	case tokenIdent:
 		return newTextNode(
 			t.scanner.string(),

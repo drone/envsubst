@@ -149,7 +149,7 @@ func lookupFunc(name string, args int) substituteFunc {
 		return replaceAll
 	case "=", ":=", ":-":
 		return toDefault
-	case ":?", ":+", "-", "+":
+	case ":?", ":+", "-", "+", "bare":
 		return toDefault
 	default:
 		return toDefault

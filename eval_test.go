@@ -1,6 +1,9 @@
 package envsubst
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 // test cases sourced from tldp.org
 // http://www.tldp.org/LDP/abs/html/parameter-substitution.html
@@ -10,6 +13,7 @@ func TestExpand(t *testing.T) {
 		params map[string]string
 		input  string
 		output string
+		err error
 	}{
 		// text-only
 		{
@@ -168,19 +172,15 @@ func TestExpand(t *testing.T) {
 		},
 		// escaped
 		{
-			params: map[string]string{"var01": "abcdEFGH28ij"},
-			input:  "$${var01}",
-			output: "${var01}",
-		},
-		{
-			params: map[string]string{"var01": "abcdEFGH28ij"},
-			input:  "some text ${var01}$${var$${var01}$var01${var01}",
-			output: "some text abcdEFGH28ij${var${var01}$var01abcdEFGH28ij",
+			params: map[string]string{"var": "foo"},
+			input:  "some text ${var}$${var$${var}$var${var}",
+			output: "some text foo$${var$foofoofoo",
+			err:  fmt.Errorf("missing closing brace"),
 		},
 		{
 			params: map[string]string{"default_var": "foo"},
 			input:  "something $${var=${default_var}}",
-			output: "something ${var=foo}",
+			output: "something $foo",
 		},
 		// some common escaping use cases
 		{
@@ -205,6 +205,68 @@ func TestExpand(t *testing.T) {
 			input:  `${stringZ/./}`,
 			output: "foobar",
 		},
+		// dollar sign handling
+		{
+			params: map[string]string{"": ""},
+			input:  "$",
+			output: "$",
+		},
+		{
+			params: map[string]string{"": ""},
+			input:  "$$",
+			output: "$$",
+		},
+		{
+			params: map[string]string{"": ""},
+			input:  "$$$",
+			output: "$$$",
+		},
+		{
+			params: map[string]string{"var": "foo"},
+			input:  "$$var",
+			output: "$foo",
+		},
+		{
+			params: map[string]string{"var": "foo"},
+			input:  "$${var}",
+			output: "$foo",
+		},
+		// nested
+		{
+			params: map[string]string{"var": "foo"},
+			input:  "${var2:-$var}",
+			output: "foo",
+		},
+		{
+			params: map[string]string{"var": "foo"},
+			input:  "${var2:-${var}}",
+			output: "foo",
+		},
+		{
+			params: map[string]string{"": ""},
+			input:  "${var:-$$}",
+			output: "$$",
+		},
+		{
+			params: map[string]string{"var": "foo"},
+			input:  `${var2:-"${var}lala"}`,
+			output: `"foolala"`,
+		},
+		{
+			params: map[string]string{"var": "foo"},
+			input:  `${var:-$$}`,
+			output: `foo`,
+		},
+		{
+			params: map[string]string{"": ""},
+			input:  `${var:-$$}`,
+			output: `$$`,
+		},
+		{
+			params: map[string]string{"": ""},
+			input:  `${var:-${var2:-$$}}`,
+			output: `$$`,
+		},
 	}
 
 	for _, expr := range expressions {
@@ -213,12 +275,19 @@ func TestExpand(t *testing.T) {
 			output, err := Eval(expr.input, func(s string) string {
 				return expr.params[s]
 			})
+			if expr.err != nil {
+				if expr.err.Error() != err.Error() {
+					t.Fatalf("Want error: %q expanded but got error: %q", expr.err.Error(), err)
+				}
+				// got expected error. go next test case
+				return
+			}
 			if err != nil {
-				t.Errorf("Want %q expanded but got error %q", expr.input, err)
+				t.Fatalf("Want %q expanded but got error %q", expr.input, err)
 			}
 
 			if output != expr.output {
-				t.Errorf("Want %q expanded to %q, got %q",
+				t.Fatalf("Want %q expanded to %q, got %q",
 					expr.input,
 					expr.output,
 					output)
