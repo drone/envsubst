@@ -248,14 +248,14 @@ func (f *nodeFormatter) getFormat(node Node) {
 		f.buf.WriteString(n.Value)
 	case *ListNode:
 		for _, item := range n.Nodes {
-			f.buf.WriteString(formatNode(item))
+			f.buf.WriteString(FormatNode(item))
 		}
 	case *FuncNode:
 		f.buf.WriteString(n.String())
 	}
 }
 
-func formatNode(node Node) string {
+func FormatNode(node Node) string {
 	f := new(nodeFormatter)
 	f.getFormat(node)
 	return f.buf.String()
@@ -292,7 +292,7 @@ func (t *Tree) parseSubstrFunc(name string) (Node, error) {
 			return nil, err
 		}
 
-		_, err = node.buf.WriteString(formatNode(param))
+		_, err = node.buf.WriteString(FormatNode(param))
 		if err != nil {
 			return nil, err
 		}
@@ -331,7 +331,7 @@ func (t *Tree) parseSubstrFunc(name string) (Node, error) {
 			return nil, err
 		}
 
-		_, err = node.buf.WriteString(formatNode(param))
+		_, err = node.buf.WriteString(FormatNode(param))
 		if err != nil {
 			return nil, err
 		}
@@ -382,7 +382,7 @@ func (t *Tree) parseRemoveFunc(name string, accept acceptFunc) (Node, error) {
 			return nil, err
 		}
 
-		_, err = node.buf.WriteString(formatNode(param))
+		_, err = node.buf.WriteString(FormatNode(param))
 		if err != nil {
 			return nil, err
 		}
@@ -433,7 +433,7 @@ func (t *Tree) parseReplaceFunc(name string) (Node, error) {
 			return nil, err
 		}
 
-		_, err = node.buf.WriteString(formatNode(param))
+		_, err = node.buf.WriteString(FormatNode(param))
 		if err != nil {
 			return nil, err
 		}
@@ -471,7 +471,7 @@ func (t *Tree) parseReplaceFunc(name string) (Node, error) {
 			return nil, err
 		}
 
-		_, err = node.buf.WriteString(formatNode(param))
+		_, err = node.buf.WriteString(FormatNode(param))
 		if err != nil {
 			return nil, err
 		}
@@ -531,7 +531,7 @@ func (t *Tree) parseDefaultFunc(name string) (Node, error) {
 			return nil, err
 		}
 
-		_, err = node.buf.WriteString(formatNode(param))
+		_, err = node.buf.WriteString(FormatNode(param))
 		if err != nil {
 			return nil, err
 		}

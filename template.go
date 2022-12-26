@@ -17,6 +17,8 @@ type state struct {
 
 	// maps variable names to values
 	mapper func(string) string
+
+	advMapper AdvancedMapping
 }
 
 // Template is the representation of a parsed shell format string.
