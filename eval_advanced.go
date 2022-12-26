@@ -3,6 +3,7 @@ package envsubst
 import (
 	"bytes"
 	"io"
+	"os"
 
 	"github.com/logandavies181/envsubst/parse"
 )
@@ -21,10 +22,13 @@ func (n NodeInfo) Orig() string {
 // AdvancedMapping is a function that takes a variable name and
 // representation of the full shell variable string and returns the substituted
 // string and whether or not to continue processing
-type AdvancedMapping func(string, NodeInfo) (string, bool)
+type AdvancedMapping func(string, NodeInfo) (mapped string, shouldContinue bool)
 
 // EvalAdvanced allows the caller to control how ${var} is mapped and how its
-// nested parameters are evaluated
+// nested parameters are evaluated.
+//
+// If mapping returns false, processing stops and the returned string is used.
+// If mapping returns true, this behaves the same as EvalEnv
 func EvalAdvanced(s string, mapping AdvancedMapping) (string, error) {
 	t, err := Parse(s)
 	if err != nil {
@@ -39,6 +43,7 @@ func (t *Template) ExecuteAdvanced(mapping AdvancedMapping) (str string, err err
 	b := new(bytes.Buffer)
 	s := new(state)
 	s.node = t.tree.Root
+	s.mapper = os.Getenv
 	s.advMapper = mapping
 	s.writer = b
 	err = t.evalAdvanced(s)
@@ -87,6 +92,8 @@ func (t *Template) evalAdvancedFunc(s *state, node *parse.FuncNode) error {
 		return err
 	}
 
+	v := s.mapper(node.Param)
+
 	for _, n := range node.Args {
 		buf.Reset()
 		s.writer = &buf
@@ -99,6 +106,6 @@ func (t *Template) evalAdvancedFunc(s *state, node *parse.FuncNode) error {
 	}
 	fn := lookupFunc(node.Name, len(args))
 
-	_, err := io.WriteString(s.writer, fn(val, args...))
+	_, err := io.WriteString(s.writer, fn(v, args...))
 	return err
 }
