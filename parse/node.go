@@ -1,5 +1,7 @@
 package parse
 
+import "bytes"
+
 // Node is an element in the parse tree.
 type Node interface {
 	node()
@@ -21,6 +23,10 @@ type (
 		Param string
 		Name  string
 		Args  []Node
+
+		// TODO handle nesting above 1
+		nesting int
+		buf bytes.Buffer
 	}
 
 	// ListNode represents a list of nodes.
@@ -63,6 +69,14 @@ type (
 	// 	Default Node
 	// }
 )
+
+func (node FuncNode) String() string {
+	return node.buf.String()
+}
+
+func (node FuncNode) Nesting() int {
+	return node.nesting
+}
 
 // newTextNode returns a new TextNode.
 func newTextNode(text string) *TextNode {
