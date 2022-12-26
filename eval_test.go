@@ -267,6 +267,12 @@ func TestExpand(t *testing.T) {
 			input:  `${var:-${var2:-$$}}`,
 			output: `$$`,
 		},
+		// newline
+		{
+			params: map[string]string{"": ""},
+			input:  `${var:-${var2:-$$}}`,
+			output: `$$`,
+		},
 	}
 
 	for _, expr := range expressions {

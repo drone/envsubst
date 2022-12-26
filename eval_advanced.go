@@ -45,7 +45,7 @@ func (t *Template) ExecuteAdvanced(mapping AdvancedMapping) (str string, err err
 	if err != nil {
 		return
 	}
-	return "", nil
+	return b.String(), nil
 }
 
 func (t *Template) evalAdvanced(s *state) (err error) {
