@@ -6,7 +6,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/drone/envsubst/v2/path"
+	"github.com/logandavies181/envsubst/path"
 )
 
 // defines a parameter substitution function.

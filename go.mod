@@ -1,5 +1,5 @@
-module github.com/drone/envsubst/v2
+module github.com/logandavies181/envsubst
 
 require github.com/google/go-cmp v0.2.0
 
-go 1.13
+go 1.19

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/drone/envsubst/v2/parse"
+	"github.com/logandavies181/envsubst/parse"
 )
 
 type NodeInfo struct {
