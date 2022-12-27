@@ -77,14 +77,6 @@ func (t *Template) evalAdvancedList(s *state, node *parse.ListNode) (err error) 
 }
 
 func (t *Template) evalAdvancedFunc(s *state, node *parse.FuncNode) error {
-	var w = s.writer
-	var buf bytes.Buffer
-	var args []string
-
-	// restore the origin writer
-	s.writer = w
-	s.node = node
-
 	val, shouldContinue := s.advMapper(node.Param, NodeInfo{node})
 
 	if !shouldContinue {
@@ -92,7 +84,9 @@ func (t *Template) evalAdvancedFunc(s *state, node *parse.FuncNode) error {
 		return err
 	}
 
-	v := s.mapper(node.Param)
+	var w = s.writer
+	var buf bytes.Buffer
+	var args []string
 
 	for _, n := range node.Args {
 		buf.Reset()
@@ -104,6 +98,13 @@ func (t *Template) evalAdvancedFunc(s *state, node *parse.FuncNode) error {
 		}
 		args = append(args, buf.String())
 	}
+
+	// restore the origin writer
+	s.writer = w
+	s.node = node
+
+	v := s.mapper(node.Param)
+
 	fn := lookupFunc(node.Name, len(args))
 
 	_, err := io.WriteString(s.writer, fn(v, args...))
