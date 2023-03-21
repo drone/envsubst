@@ -3,6 +3,13 @@
 `envsubst` is a Go package for expanding variables in a string using `${var}` syntax.
 Includes support for bash string replacement functions.
 
+## Consider alterantives
+
+We don't provide an issue tracker for `envsubst`.
+
+Consider using [github.com/a8m/envsubst](https://github.com/a8m/envsubst), 
+if you want to use a package which is looking for feedback.
+
 ## Documentation
 
 [Documentation can be found on GoDoc][doc].
