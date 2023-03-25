@@ -1,6 +1,9 @@
 package envsubst
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 // test cases sourced from tldp.org
 // http://www.tldp.org/LDP/abs/html/parameter-substitution.html
@@ -210,13 +213,66 @@ func TestExpand(t *testing.T) {
 	for _, expr := range expressions {
 		t.Run(expr.input, func(t *testing.T) {
 			t.Logf(expr.input)
-			output, err := Eval(expr.input, func(s string) string {
-				return expr.params[s]
+			output, err := Eval(expr.input, func(s string) (string, bool) {
+				return expr.params[s], true
 			})
 			if err != nil {
 				t.Errorf("Want %q expanded but got error %q", expr.input, err)
 			}
 
+			if output != expr.output {
+				t.Errorf("Want %q expanded to %q, got %q",
+					expr.input,
+					expr.output,
+					output)
+			}
+		})
+	}
+}
+
+func TestExpandStrict(t *testing.T) {
+	var expressions = []struct {
+		params  map[string]string
+		input   string
+		output  string
+		wantErr error
+	}{
+		// text-only
+		{
+			params:  map[string]string{},
+			input:   "abcdEFGH28ij",
+			output:  "abcdEFGH28ij",
+			wantErr: nil,
+		},
+		// existing
+		{
+			params:  map[string]string{"foo": "bar"},
+			input:   "${foo}",
+			output:  "bar",
+			wantErr: nil,
+		},
+		// missing
+		{
+			params:  map[string]string{},
+			input:   "${missing}",
+			output:  "",
+			wantErr: errVarNotSet,
+		},
+	}
+
+	for _, expr := range expressions {
+		t.Run(expr.input, func(t *testing.T) {
+			t.Logf(expr.input)
+			output, err := Eval(expr.input, func(s string) (string, bool) {
+				v, exists := expr.params[s]
+				return v, exists
+			})
+			if expr.wantErr == nil && err != nil {
+				t.Errorf("Want %q expanded but got error %q", expr.input, err)
+			}
+			if expr.wantErr != nil && !errors.Is(err, expr.wantErr) {
+				t.Errorf("Want error %q but got error %q", expr.wantErr, err)
+			}
 			if output != expr.output {
 				t.Errorf("Want %q expanded to %q, got %q",
 					expr.input,

@@ -34,6 +34,10 @@ Includes support for bash string replacement functions.
 
 For a deeper reference, see [bash-hackers](https://wiki.bash-hackers.org/syntax/pe#case_modification) or [gnu pattern matching](https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html).
 
+## Strict mode
+
+Use `--strict` if you want `envsubst` to fail, if an undefined variable gets accessed.
+
 ## Unsupported Functions
 
 * `${var-default}`
