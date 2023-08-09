@@ -23,10 +23,10 @@ Includes support for bash string replacement functions.
 | `${var##pattern}`             | Strip longest `pattern` match from start
 | `${var%pattern}`              | Strip shortest `pattern` match from end
 | `${var%%pattern}`             | Strip longest `pattern` match from end
-| `${var-default`               | If `$var` is not set, evaluate expression as `$default`
-| `${var:-default`              | If `$var` is not set or is empty, evaluate expression as `$default`
-| `${var=default`               | If `$var` is not set, evaluate expression as `$default`
-| `${var:=default`              | If `$var` is not set or is empty, evaluate expression as `$default`
+| `${var-default}`               | If `$var` is not set, evaluate expression as `$default`
+| `${var:-default}`              | If `$var` is not set or is empty, evaluate expression as `$default`
+| `${var=default}`               | If `$var` is not set, evaluate expression as `$default`
+| `${var:=default}`              | If `$var` is not set or is empty, evaluate expression as `$default`
 | `${var/pattern/replacement}`  | Replace as few `pattern` matches as possible with `replacement`
 | `${var//pattern/replacement}` | Replace as many `pattern` matches as possible with `replacement`
 | `${var/#pattern/replacement}` | Replace `pattern` match with `replacement` from `$var` start
@@ -36,7 +36,6 @@ For a deeper reference, see [bash-hackers](https://wiki.bash-hackers.org/syntax/
 
 ## Unsupported Functions
 
-* `${var-default}`
 * `${var+default}`
 * `${var:?default}`
 * `${var:+default}`
