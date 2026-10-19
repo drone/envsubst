@@ -101,4 +101,9 @@ func Test_substr(t *testing.T) {
 	if got != want {
 		t.Errorf("Expect substr function to cut entire string if pos is itself out of bound")
 	}
+
+	got, want = toSubstr("123456789123456789", "1", "-2"), ""
+	if got != want {
+		t.Errorf("Expect substr function to return an empty string for a negative length")
+	}
 }

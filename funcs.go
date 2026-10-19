@@ -101,6 +101,12 @@ func toSubstr(s string, args ...string) string {
 		return s
 	}
 
+	if length < 0 {
+		// negative lengths are not supported, return an
+		// empty string instead of slicing out of range
+		return ""
+	}
+
 	if pos+length >= len(s) {
 		if pos < len(s) {
 			// if the position exceeds the length of the
