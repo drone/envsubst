@@ -1,6 +1,8 @@
 package envsubst
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -9,68 +11,80 @@ import (
 	"github.com/woodpecker-ci/envsubst/path"
 )
 
+var (
+	// ErrBadSubstringPosition represents a substring position that is
+	// not an integer.
+	ErrBadSubstringPosition = errors.New("bad substring position")
+
+	// ErrBadSubstringLength represents a substring length that is not
+	// a positive integer.
+	ErrBadSubstringLength = errors.New("bad substring length")
+
+	// ErrMissingArgument represents a substitution function called
+	// without the arguments it needs.
+	ErrMissingArgument = errors.New("missing argument")
+)
+
 // defines a parameter substitution function.
-type substituteFunc func(string, ...string) string
+type substituteFunc func(string, ...string) (string, error)
 
 // toLen returns the length of string s.
-func toLen(s string, args ...string) string {
-	return strconv.Itoa(len(s))
+func toLen(s string, args ...string) (string, error) {
+	return strconv.Itoa(len(s)), nil
 }
 
 // toLower returns a copy of the string s with all characters
 // mapped to their lower case.
-func toLower(s string, args ...string) string {
-	return strings.ToLower(s)
+func toLower(s string, args ...string) (string, error) {
+	return strings.ToLower(s), nil
 }
 
 // toUpper returns a copy of the string s with all characters
 // mapped to their upper case.
-func toUpper(s string, args ...string) string {
-	return strings.ToUpper(s)
+func toUpper(s string, args ...string) (string, error) {
+	return strings.ToUpper(s), nil
 }
 
 // toLowerFirst returns a copy of the string s with the first
 // character mapped to its lower case.
-func toLowerFirst(s string, args ...string) string {
+func toLowerFirst(s string, args ...string) (string, error) {
 	if s == "" {
-		return s
+		return s, nil
 	}
 	r, n := utf8.DecodeRuneInString(s)
-	return string(unicode.ToLower(r)) + s[n:]
+	return string(unicode.ToLower(r)) + s[n:], nil
 }
 
 // toUpperFirst returns a copy of the string s with the first
 // character mapped to its upper case.
-func toUpperFirst(s string, args ...string) string {
+func toUpperFirst(s string, args ...string) (string, error) {
 	if s == "" {
-		return s
+		return s, nil
 	}
 	r, n := utf8.DecodeRuneInString(s)
-	return string(unicode.ToUpper(r)) + s[n:]
+	return string(unicode.ToUpper(r)) + s[n:], nil
 }
 
 // toDefault returns a copy of the string s if not empty, else
 // returns a concatenation of the args without a separator.
-func toDefault(s string, args ...string) string {
+func toDefault(s string, args ...string) (string, error) {
 	if len(s) == 0 && len(args) > 0 {
 		// don't use any separator
 		s = strings.Join(args, "")
 	}
-	return s
+	return s, nil
 }
 
 // toSubstr returns a slice of the string s at the specified
 // length and position.
-func toSubstr(s string, args ...string) string {
+func toSubstr(s string, args ...string) (string, error) {
 	if len(args) == 0 {
-		return s // should never happen
+		return "", ErrMissingArgument
 	}
 
 	pos, err := strconv.Atoi(args[0])
 	if err != nil {
-		// bash returns the string if the position
-		// cannot be parsed.
-		return s
+		return "", fmt.Errorf("%w: %q", ErrBadSubstringPosition, args[0])
 	}
 
 	if pos < 0 {
@@ -87,131 +101,126 @@ func toSubstr(s string, args ...string) string {
 
 	if len(args) == 1 {
 		if pos < len(s) {
-			return s[pos:]
+			return s[pos:], nil
 		}
 		// if the position exceeds the length of the
 		// string an empty string is returned
-		return ""
+		return "", nil
 	}
 
 	length, err := strconv.Atoi(args[1])
-	if err != nil {
-		// bash returns the string if the length
-		// cannot be parsed.
-		return s
-	}
-
-	if length < 0 {
-		// negative lengths are not supported, return an
-		// empty string instead of slicing out of range
-		return ""
+	if err != nil || length < 0 {
+		// negative lengths are not supported
+		return "", fmt.Errorf("%w: %q", ErrBadSubstringLength, args[1])
 	}
 
 	if pos+length >= len(s) {
 		if pos < len(s) {
 			// if the position exceeds the length of the
 			// string just return the rest of it like bash
-			return s[pos:]
+			return s[pos:], nil
 		}
 		// if the position exceeds the length of the
 		// string an empty string is returned
-		return ""
+		return "", nil
 	}
 
-	return s[pos : pos+length]
+	return s[pos : pos+length], nil
 }
 
 // replaceAll returns a copy of the string s with all instances
 // of the substring replaced with the replacement string.
-func replaceAll(s string, args ...string) string {
+func replaceAll(s string, args ...string) (string, error) {
 	switch len(args) {
 	case 0:
-		return s
+		return "", ErrMissingArgument
 	case 1:
-		return strings.Replace(s, args[0], "", -1)
+		return strings.Replace(s, args[0], "", -1), nil
 	default:
-		return strings.Replace(s, args[0], args[1], -1)
+		return strings.Replace(s, args[0], args[1], -1), nil
 	}
 }
 
 // replaceFirst returns a copy of the string s with the first
 // instance of the substring replaced with the replacement string.
-func replaceFirst(s string, args ...string) string {
+func replaceFirst(s string, args ...string) (string, error) {
 	switch len(args) {
 	case 0:
-		return s
+		return "", ErrMissingArgument
 	case 1:
-		return strings.Replace(s, args[0], "", 1)
+		return strings.Replace(s, args[0], "", 1), nil
 	default:
-		return strings.Replace(s, args[0], args[1], 1)
+		return strings.Replace(s, args[0], args[1], 1), nil
 	}
 }
 
 // replacePrefix returns a copy of the string s with the matching
 // prefix replaced with the replacement string.
-func replacePrefix(s string, args ...string) string {
+func replacePrefix(s string, args ...string) (string, error) {
 	if len(args) != 2 {
-		return s
+		return "", ErrMissingArgument
 	}
 	if strings.HasPrefix(s, args[0]) {
-		return strings.Replace(s, args[0], args[1], 1)
+		return strings.Replace(s, args[0], args[1], 1), nil
 	}
-	return s
+	return s, nil
 }
 
 // replaceSuffix returns a copy of the string s with the matching
 // suffix replaced with the replacement string.
-func replaceSuffix(s string, args ...string) string {
+func replaceSuffix(s string, args ...string) (string, error) {
 	if len(args) != 2 {
-		return s
+		return "", ErrMissingArgument
 	}
 	if strings.HasSuffix(s, args[0]) {
 		s = strings.TrimSuffix(s, args[0])
 		s = s + args[1]
 	}
-	return s
+	return s, nil
 }
 
 // TODO
 
-func trimShortestPrefix(s string, args ...string) string {
-	if len(args) != 0 {
-		s = trimShortest(s, args[0])
+func trimShortestPrefix(s string, args ...string) (string, error) {
+	if len(args) == 0 {
+		return "", ErrMissingArgument
 	}
-	return s
+	return trimShortest(s, args[0])
 }
 
-func trimShortestSuffix(s string, args ...string) string {
-	if len(args) != 0 {
-		r := reverse(s)
-		rarg := reverse(args[0])
-		s = reverse(trimShortest(r, rarg))
+func trimShortestSuffix(s string, args ...string) (string, error) {
+	if len(args) == 0 {
+		return "", ErrMissingArgument
 	}
-	return s
+	r := reverse(s)
+	rarg := reverse(args[0])
+	s, err := trimShortest(r, rarg)
+	return reverse(s), err
 }
 
-func trimLongestPrefix(s string, args ...string) string {
-	if len(args) != 0 {
-		s = trimLongest(s, args[0])
+func trimLongestPrefix(s string, args ...string) (string, error) {
+	if len(args) == 0 {
+		return "", ErrMissingArgument
 	}
-	return s
+	return trimLongest(s, args[0])
 }
 
-func trimLongestSuffix(s string, args ...string) string {
-	if len(args) != 0 {
-		r := reverse(s)
-		rarg := reverse(args[0])
-		s = reverse(trimLongest(r, rarg))
+func trimLongestSuffix(s string, args ...string) (string, error) {
+	if len(args) == 0 {
+		return "", ErrMissingArgument
 	}
-	return s
+	r := reverse(s)
+	rarg := reverse(args[0])
+	s, err := trimLongest(r, rarg)
+	return reverse(s), err
 }
 
-func trimShortest(s, arg string) string {
+func trimShortest(s, arg string) (string, error) {
 	var shortestMatch string
 	for i := 0; i < len(s); i++ {
 		match, err := path.Match(arg, s[0:len(s)-i])
 		if err != nil {
-			return s
+			return "", err
 		}
 
 		if match {
@@ -220,25 +229,25 @@ func trimShortest(s, arg string) string {
 	}
 
 	if shortestMatch != "" {
-		return strings.TrimPrefix(s, shortestMatch)
+		return strings.TrimPrefix(s, shortestMatch), nil
 	}
 
-	return s
+	return s, nil
 }
 
-func trimLongest(s, arg string) string {
+func trimLongest(s, arg string) (string, error) {
 	for i := 0; i < len(s); i++ {
 		match, err := path.Match(arg, s[0:len(s)-i])
 		if err != nil {
-			return s
+			return "", err
 		}
 
 		if match {
-			return strings.TrimPrefix(s, s[0:len(s)-i])
+			return strings.TrimPrefix(s, s[0:len(s)-i]), nil
 		}
 	}
 
-	return s
+	return s, nil
 }
 
 func reverse(s string) string {

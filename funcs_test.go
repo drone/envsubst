@@ -1,23 +1,26 @@
 package envsubst
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 func Test_len(t *testing.T) {
-	got, want := toLen("Hello World"), "11"
+	got, want := result(toLen("Hello World")), "11"
 	if got != want {
 		t.Errorf("Expect len function to return %s, got %s", want, got)
 	}
 }
 
 func Test_lower(t *testing.T) {
-	got, want := toLower("Hello World"), "hello world"
+	got, want := result(toLower("Hello World")), "hello world"
 	if got != want {
 		t.Errorf("Expect lower function to return %s, got %s", want, got)
 	}
 }
 
 func Test_lowerFirst(t *testing.T) {
-	got, want := toLowerFirst("HELLO WORLD"), "hELLO WORLD"
+	got, want := result(toLowerFirst("HELLO WORLD")), "hELLO WORLD"
 	if got != want {
 		t.Errorf("Expect lowerFirst function to return %s, got %s", want, got)
 	}
@@ -30,14 +33,14 @@ func Test_lowerFirst(t *testing.T) {
 }
 
 func Test_upper(t *testing.T) {
-	got, want := toUpper("Hello World"), "HELLO WORLD"
+	got, want := result(toUpper("Hello World")), "HELLO WORLD"
 	if got != want {
 		t.Errorf("Expect upper function to return %s, got %s", want, got)
 	}
 }
 
 func Test_upperFirst(t *testing.T) {
-	got, want := toUpperFirst("hello world"), "Hello world"
+	got, want := result(toUpperFirst("hello world")), "Hello world"
 	if got != want {
 		t.Errorf("Expect upperFirst function to return %s, got %s", want, got)
 	}
@@ -50,60 +53,67 @@ func Test_upperFirst(t *testing.T) {
 }
 
 func Test_default(t *testing.T) {
-	got, want := toDefault("Hello World", "Hola Mundo"), "Hello World"
+	got, want := result(toDefault("Hello World", "Hola Mundo")), "Hello World"
 	if got != want {
 		t.Errorf("Expect default function uses variable value")
 	}
 
-	got, want = toDefault("", "Hola Mundo"), "Hola Mundo"
+	got, want = result(toDefault("", "Hola Mundo")), "Hola Mundo"
 	if got != want {
 		t.Errorf("Expect default function uses default value, when variable empty. Got %s, Want %s", got, want)
 	}
 
-	got, want = toDefault("", "Hola Mundo", "-Bonjour le monde", "-Halló heimur"), "Hola Mundo-Bonjour le monde-Halló heimur"
+	got, want = result(toDefault("", "Hola Mundo", "-Bonjour le monde", "-Halló heimur")), "Hola Mundo-Bonjour le monde-Halló heimur"
 	if got != want {
 		t.Errorf("Expect default function to use concatenated args when variable empty. Got %s, Want %s", got, want)
 	}
 }
 
 func Test_substr(t *testing.T) {
-	got, want := toSubstr("123456789123456789", "0", "8"), "12345678"
+	got, want := result(toSubstr("123456789123456789", "0", "8")), "12345678"
 	if got != want {
 		t.Errorf("Expect substr function to cut from beginning to length")
 	}
 
-	got, want = toSubstr("123456789123456789", "1", "8"), "23456789"
+	got, want = result(toSubstr("123456789123456789", "1", "8")), "23456789"
 	if got != want {
 		t.Errorf("Expect substr function to cut from offset to length")
 	}
 
-	got, want = toSubstr("123456789123456789", "9"), "123456789"
+	got, want = result(toSubstr("123456789123456789", "9")), "123456789"
 	if got != want {
 		t.Errorf("Expect substr function to cut beginnging with offset")
 	}
 
-	got, want = toSubstr("123456789123456789", "9", "50"), "123456789"
+	got, want = result(toSubstr("123456789123456789", "9", "50")), "123456789"
 	if got != want {
 		t.Errorf("Expect substr function to ignore length if out of bound")
 	}
 
-	got, want = toSubstr("123456789123456789", "-3", "2"), "78"
+	got, want = result(toSubstr("123456789123456789", "-3", "2")), "78"
 	if got != want {
 		t.Errorf("Expect substr function to count negative offsets from the end")
 	}
 
-	got, want = toSubstr("123456789123456789", "-300", "3"), "123"
+	got, want = result(toSubstr("123456789123456789", "-300", "3")), "123"
 	if got != want {
 		t.Errorf("Expect substr function to cut from the beginning to length for negative offsets exceeding string length")
 	}
 
-	got, want = toSubstr("12345678", "9", "1"), ""
+	got, want = result(toSubstr("12345678", "9", "1")), ""
 	if got != want {
 		t.Errorf("Expect substr function to cut entire string if pos is itself out of bound")
 	}
 
-	got, want = toSubstr("123456789123456789", "1", "-2"), ""
-	if got != want {
-		t.Errorf("Expect substr function to return an empty string for a negative length")
+	if _, err := toSubstr("123456789123456789", "1", "-2"); !errors.Is(err, ErrBadSubstringLength) {
+		t.Errorf("Expect substr function to fail on a negative length, got %v", err)
 	}
+}
+
+// result returns the value of a substitution function that must not fail.
+func result(s string, err error) string {
+	if err != nil {
+		panic(err)
+	}
+	return s
 }

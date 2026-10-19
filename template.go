@@ -110,7 +110,12 @@ func (t *Template) evalFunc(s *state, node *parse.FuncNode) error {
 
 	fn := lookupFunc(node.Name, len(args))
 
-	_, err := io.WriteString(s.writer, fn(v, args...))
+	out, err := fn(v, args...)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.WriteString(s.writer, out)
 	return err
 }
 

@@ -1,6 +1,11 @@
 package envsubst
 
-import "testing"
+import (
+	"errors"
+	"testing"
+
+	"github.com/woodpecker-ci/envsubst/path"
+)
 
 // test cases sourced from tldp.org
 // http://www.tldp.org/LDP/abs/html/parameter-substitution.html
@@ -224,5 +229,18 @@ func TestExpand(t *testing.T) {
 					output)
 			}
 		})
+	}
+}
+
+func TestExpandError(t *testing.T) {
+	for input, want := range map[string]error{
+		"${var:abc}": ErrBadSubstringPosition,
+		"${var:1:x}": ErrBadSubstringLength,
+		"${var##[}":  path.ErrBadPattern,
+	} {
+		_, err := Eval(input, func(string) string { return "abcdefgh" })
+		if !errors.Is(err, want) {
+			t.Errorf("Want %q to fail with %q, got %v", input, want, err)
+		}
 	}
 }
