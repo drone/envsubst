@@ -18,7 +18,7 @@ Includes support for bash string replacement functions.
 | `${var,}`                     | Lowercase first character of `$var`
 | `${var,,}`                    | Lowercase all characters in `$var`
 | `${var:n}`                    | Offset `$var` `n` characters from start
-| `${var:n:len}`                | Offset `$var` `n` characters with max length of `len`
+| `${var:n:len}`                | Offset `$var` `n` characters with max length of `len`, a negative `len` counts back from the end
 | `${var#pattern}`              | Strip shortest `pattern` match from start
 | `${var##pattern}`             | Strip longest `pattern` match from start
 | `${var%pattern}`              | Strip shortest `pattern` match from end

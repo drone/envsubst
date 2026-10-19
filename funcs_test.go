@@ -1,9 +1,6 @@
 package envsubst
 
-import (
-	"errors"
-	"testing"
-)
+import "testing"
 
 func Test_len(t *testing.T) {
 	got, want := result(toLen("Hello World")), "11"
@@ -105,8 +102,9 @@ func Test_substr(t *testing.T) {
 		t.Errorf("Expect substr function to cut entire string if pos is itself out of bound")
 	}
 
-	if _, err := toSubstr("123456789123456789", "1", "-2"); !errors.Is(err, ErrBadSubstringLength) {
-		t.Errorf("Expect substr function to fail on a negative length, got %v", err)
+	got, want = result(toSubstr("123456789123456789", "1", "-2")), "234567891234567"
+	if got != want {
+		t.Errorf("Expect substr function to count negative lengths from the end")
 	}
 }
 

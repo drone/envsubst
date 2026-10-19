@@ -234,9 +234,10 @@ func TestExpand(t *testing.T) {
 
 func TestExpandError(t *testing.T) {
 	for input, want := range map[string]error{
-		"${var:abc}": ErrBadSubstringPosition,
-		"${var:1:x}": ErrBadSubstringLength,
-		"${var##[}":  path.ErrBadPattern,
+		"${var:abc}":  ErrBadSubstringPosition,
+		"${var:1:x}":  ErrBadSubstringLength,
+		"${var:3:-9}": ErrBadSubstringLength,
+		"${var##[}":   path.ErrBadPattern,
 	} {
 		_, err := Eval(input, func(string) string { return "abcdefgh" })
 		if !errors.Is(err, want) {

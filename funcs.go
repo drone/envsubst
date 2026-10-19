@@ -17,7 +17,7 @@ var (
 	ErrBadSubstringPosition = errors.New("bad substring position")
 
 	// ErrBadSubstringLength represents a substring length that is not
-	// a positive integer.
+	// an integer or, if negative, ends before the position.
 	ErrBadSubstringLength = errors.New("bad substring length")
 
 	// ErrMissingArgument represents a substitution function called
@@ -109,9 +109,21 @@ func toSubstr(s string, args ...string) (string, error) {
 	}
 
 	length, err := strconv.Atoi(args[1])
-	if err != nil || length < 0 {
-		// negative lengths are not supported
+	if err != nil {
 		return "", fmt.Errorf("%w: %q", ErrBadSubstringLength, args[1])
+	}
+
+	if length < 0 {
+		// like bash a negative length counts back from the
+		// end of the string
+		if pos > len(s) {
+			return "", nil
+		}
+		length = len(s) + length - pos
+		if length < 0 {
+			// bash fails with "substring expression < 0"
+			return "", fmt.Errorf("%w: %q", ErrBadSubstringLength, args[1])
+		}
 	}
 
 	if pos+length >= len(s) {
