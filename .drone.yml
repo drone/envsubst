@@ -3,6 +3,6 @@ name: default
 
 steps:
 - name: build
-  image: golang:1.11
+  image: harness0.harness.io/oci/docker_artifacts/hhi/go:1.26.10
   commands:
   - go test -v ./...
