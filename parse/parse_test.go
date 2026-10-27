@@ -524,7 +524,7 @@ func TestParse(t *testing.T) {
 			}
 
 			if diff := cmp.Diff(test.Node, got.Root); diff != "" {
-				t.Error(diff)
+				t.Errorf(diff)
 			}
 		})
 	}
